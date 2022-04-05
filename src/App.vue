@@ -2,6 +2,7 @@
 import { computed } from '@vue/reactivity';
 import {ref, reactive} from 'vue'
 import Wall from './Wall.vue'
+import Treasure from './Treasure.vue'
 const S = 'S'
 const W = 'W'
 const T = 'T'
@@ -64,6 +65,7 @@ const flattenedRoomElements = computed(() => {
         <polygon points="0,250 500,40 500,460" style="fill:red;" />
       </svg>
       <Wall v-if="element === 'W'" class="wall"/>
+      <Treasure v-if="element === 'T'" class="treasure"/>
     </div>
   </div>
 </div>
@@ -100,7 +102,7 @@ body {
   stroke-width:2;
 }
 
-.wall {
+.wall, .treasure {
   width: 90%;
   height: 90%;
   margin: 5%;
