@@ -1,6 +1,7 @@
 <script setup>
 import { computed } from '@vue/reactivity';
 import {ref, reactive} from 'vue'
+import Wall from './Wall.vue'
 const S = 'S'
 const W = 'W'
 const T = 'T'
@@ -60,8 +61,9 @@ const flattenedRoomElements = computed(() => {
     <div class="room-element" v-for="(element, i) in flattenedRoomElements" :key="i">
       <svg v-if="element === 'P'" class="player" viewBox="0 0 500 500"
         :style="{'transform': 'rotate(' + rotatePlayer + 'deg)'}">
-        <polygon points="0,250 500,0 500,500" style="fill:red;" />
+        <polygon points="0,250 500,40 500,460" style="fill:red;" />
       </svg>
+      <Wall v-if="element === 'W'" class="wall"/>
     </div>
   </div>
 </div>
@@ -96,5 +98,11 @@ body {
 .player > polygon {
   stroke:black;
   stroke-width:2;
+}
+
+.wall {
+  width: 90%;
+  height: 90%;
+  margin: 5%;
 }
 </style>
