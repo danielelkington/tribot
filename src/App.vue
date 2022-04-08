@@ -32,6 +32,7 @@ function getPositionOf(thing) {
 // State = playerPosition + playerFacing + playerColour.
 const playerStates = reactive([{position: getPositionOf(S), facing: 'right', colour: 'red', collision: null}])
 const playerStateIndex = ref(0)
+const winningIndex = ref(null)
 const playerCurrentState = computed(() => playerStates[playerStateIndex.value])
 const playerLastState = computed(() => playerStates[playerStates.length - 1])
 const playerPosition = computed(() => playerCurrentState.value.position)
@@ -168,8 +169,8 @@ const move = function(direction) { // forward or backward
       const newState = {...playerLastState.value, position: targetPosition, collision: null}
       // Reached the treasure?
       if (targetPositionValue === T) {
-        newState.won = true
-        gameInProgress = false
+        winningIndex.value = playerStates.length
+        window.gameInProgress = false
       }
       playerStates.push(newState)
     }
@@ -225,7 +226,7 @@ defineExpose({
 })
 
 setInterval(() => {
-  if (playerStateIndex.value < playerStates.length - 1) {
+  if (playerStateIndex.value < playerStates.length - 1 && playerStateIndex.value < winningIndex.value) {
     playerStateIndex.value++
   }
 }, 1000)
@@ -249,7 +250,14 @@ setInterval(() => {
       <Treasure v-if="element === 'T'" class="treasure"/>
     </div>
   </div>
-  {{playerStates}}
+  <Transition>
+    <div v-if="winningIndex != null && playerStateIndex >= winningIndex" class="success">
+      <div class="success-inner">
+        <Treasure/>
+        <p>You got the treasure!</p>
+      </div>
+    </div>
+  </Transition>
 </div>
 </template>
 
@@ -330,5 +338,26 @@ body {
 .v-enter-from,
 .v-leave-to {
   opacity: 0;
+}
+
+.success {
+  position: fixed;
+  width: 100%;
+  height:100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  top: 0;
+}
+
+.success-inner {
+  background: rgba(255,253,208,0.9);
+  border-radius: 5px;
+  padding: 20px;
+}
+
+.success-inner > p {
+  font-family: sans-serif;
+  font-size: larger;
 }
 </style>
