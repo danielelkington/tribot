@@ -69,8 +69,53 @@ watch(() => playerFacing.value, (playerFacing) => {
     }
   }
   rotatePlayer.value = bestAngle
-  
 })
+
+function updateGlobals() {
+  // Need to check ahead and behind the player to see if
+  // The end of the board or a wall is ahead/behind.
+  const currentPosition = playerLastState.value.position
+  const facing = playerLastState.value.facing
+  let oneStepForward, oneStepBack
+  switch(facing) {
+    case 'right':
+      oneStepForward = [currentPosition[0], currentPosition[1] + 1]
+      oneStepBack = [currentPosition[0], currentPosition[1] - 1]
+      break
+    case 'up':
+      oneStepForward = [currentPosition[0] - 1, currentPosition[1]]
+      oneStepBack = [currentPosition[0] + 1, currentPosition[1]]
+      break
+    case 'down':
+      oneStepForward = [currentPosition[0] + 1, currentPosition[1]]
+      oneStepBack = [currentPosition[0] - 1, currentPosition[1]]
+      break
+    case 'left':
+      oneStepForward = [currentPosition[0], currentPosition[1] - 1]
+      oneStepBack = [currentPosition[0], currentPosition[1] + 1]
+      break
+  }
+  if (oneStepForward[0] < 0 ||
+    oneStepForward[0] >= selectedRoom.value.length ||
+    oneStepForward[1] < 0 ||
+    oneStepForward[1] >= selectedRoom.value[0].length ||
+    selectedRoom.value[oneStepForward[0]][oneStepForward[1]] === W) {
+      window.obstacleAhead = true
+    } else {
+      window.obstacleAhead = false
+    }
+  if (oneStepBack[0] < 0 ||
+    oneStepBack[0] >= selectedRoom.value.length ||
+    oneStepBack[1] < 0 ||
+    oneStepBack[1] >= selectedRoom.value[0].length ||
+    selectedRoom.value[oneStepBack[0]][oneStepBack[1]] === W) {
+      window.obstacleBehind = true
+    } else {
+      window.obstacleBehind = false
+    }
+}
+
+updateGlobals()
 
 const flattenedRoomElements = computed(() => {
   const elements = []
@@ -129,6 +174,7 @@ const move = function(direction) { // forward or backward
       playerStates.push(newState)
     }
   }
+  updateGlobals()
 }
 
 const turn = function(direction) { // left or right
@@ -165,6 +211,7 @@ const turn = function(direction) { // left or right
     }
   }
   playerStates.push({...playerLastState.value, facing: newDirection, collision: null})
+  updateGlobals()
 }
 
 const changeColor = function(color) {
