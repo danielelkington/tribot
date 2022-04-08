@@ -1,6 +1,11 @@
 import { createApp } from 'vue'
 import App from './App.vue'
 
+// Create a div in the DOM for our Vue app
+const d = document.createElement('div')
+d.id = 'app'
+document.body.appendChild(d)
+
 const app = createApp(App)
 const component = app.mount('#app')
 
