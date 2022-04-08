@@ -1,6 +1,6 @@
 <script setup>
 import { computed } from '@vue/reactivity';
-import {ref, reactive} from 'vue'
+import {ref, reactive, watch} from 'vue'
 import Wall from './Wall.vue'
 import Treasure from './Treasure.vue'
 const S = 'S' // Start
@@ -37,13 +37,39 @@ const playerLastState = computed(() => playerStates[playerStates.length - 1])
 const playerPosition = computed(() => playerCurrentState.value.position)
 const playerFacing = computed(() => playerCurrentState.value.facing)
 const playerColour = computed(() => playerCurrentState.value.colour)
-const rotatePlayer = computed(() => {
-  switch(playerFacing.value) {
-    case 'left': return 0;
-    case 'up': return 90;
-    case 'right': return 180;
-    case 'down': return 270;
+const rotatePlayer = ref(180)
+watch(() => playerFacing.value, (playerFacing) => {
+  // So we animate smoothly, we need to calculate the rotation
+  // so that we move to the closest angle
+  // eg don't go from 270deg to 0, instead go from 270 to 360.
+  const multipleOf360 = Math.floor(rotatePlayer.value / 360)
+  const multiplesOf360ToTry = [multipleOf360 - 1, multipleOf360, multipleOf360 + 1]
+  let baseRotation
+  switch(playerFacing) {
+    case 'left':
+      baseRotation = 0
+      break
+    case 'up':
+      baseRotation = 90
+      break
+    case 'right':
+      baseRotation = 180
+      break
+    case 'down':
+      baseRotation = 270
+      break
   }
+  let smallestDifference = 1000
+  let bestAngle = null
+  for (const multipleOf360 of multiplesOf360ToTry) {
+    const angle = 360 * multipleOf360 + baseRotation
+    if (Math.abs(rotatePlayer.value - angle) < smallestDifference) {
+      bestAngle = angle
+      smallestDifference = Math.abs(rotatePlayer.value - angle)
+    }
+  }
+  rotatePlayer.value = bestAngle
+  
 })
 
 const flattenedRoomElements = computed(() => {
@@ -57,10 +83,6 @@ const flattenedRoomElements = computed(() => {
   }
   return elements
 })
-
-// TODO - when we run through the code, generate new states, then 
-// gradually move through each state to play the game.
-// Try to animate the player!
 
 const move = function(direction) { // forward or backward
   const currentPosition = playerLastState.value.position
@@ -158,7 +180,6 @@ defineExpose({
 setInterval(() => {
   if (playerStateIndex.value < playerStates.length - 1) {
     playerStateIndex.value++
-    console.log(playerCurrentState.value.position)
   }
 }, 1000)
 </script>
@@ -206,6 +227,7 @@ body {
   height: 80%;
   margin: 10%;
   transform: rotate(0deg);
+  transition: transform 1s;
 }
 
 .player > polygon {
