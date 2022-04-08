@@ -9,6 +9,7 @@ let gameInProgress = true
 let obstacleAhead = false
 let obstacleBehind = false
 
+// Global functions
 function moveForward() {
   component.move('forward')
 }
@@ -29,12 +30,12 @@ function changeColor(color) {
   component.changeColor(color)
 }
 
-changeColor('green')
-turnRight()
-changeColor('blue')
-changeColor('yellow')
-// moveForward()
-// moveForward()
-// turnLeft()
-// moveForward()
-// moveForward()
+function beep() {
+  component.beep()
+}
+
+
+// TODO:
+// - Bundle
+// - Push to npm
+// - Test

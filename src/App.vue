@@ -24,6 +24,7 @@ const rooms = reactive([
   ]
 ])
 const selectedRoom = ref(rooms[0])
+const started = ref(false)
 function getPositionOf(thing) {
   for (let i = 0; i < selectedRoom.value.length; i++) {
     for (let j = 0; j < selectedRoom.value[i].length; j++) {
@@ -35,7 +36,7 @@ function getPositionOf(thing) {
   }
 }
 // State = playerPosition + playerFacing + playerColour.
-const playerStates = reactive([{position: getPositionOf(S), facing: 'right', colour: 'red', collision: null}])
+const playerStates = reactive([{position: getPositionOf(S), facing: 'right', colour: 'red', collision: null, beep: false}])
 const playerStateIndex = ref(0)
 const winningIndex = ref(null)
 const playerCurrentState = computed(() => playerStates[playerStateIndex.value])
@@ -76,6 +77,32 @@ watch(() => playerFacing.value, (playerFacing) => {
   }
   rotatePlayer.value = bestAngle
 })
+
+// From https://stackoverflow.com/a/29641185/5740181
+const audioCtx = new (window.AudioContext || window.webkitAudioContext || window.audioContext)
+function doBeep() {
+  const duration = 300,
+  frequency = 160,
+  volume = 0.7,
+  type = 'sawtooth'
+
+  var oscillator = audioCtx.createOscillator();
+  var gainNode = audioCtx.createGain();
+
+  oscillator.connect(gainNode);
+  gainNode.connect(audioCtx.destination);
+
+  if (volume){gainNode.gain.value = volume;}
+  if (frequency){oscillator.frequency.value = frequency;}
+  if (type){oscillator.type = type;}
+
+  oscillator.start(audioCtx.currentTime);
+  oscillator.stop(audioCtx.currentTime + ((duration || 500) / 1000));
+}
+
+function beep() {
+  playerStates.push({...playerLastState.value, beep: true})
+}
 
 function updateGlobals() {
   // Need to check ahead and behind the player to see if
@@ -163,15 +190,15 @@ const move = function(direction) { // forward or backward
     targetPosition[0] >= selectedRoom.value.length ||
     targetPosition[1] < 0 ||
     targetPosition[1] >= selectedRoom.value[0].length) {
-    playerStates.push({...playerLastState.value, collision: movementDirection})
+    playerStates.push({...playerLastState.value, collision: movementDirection, beep: false})
   } else {
     const targetPositionValue = selectedRoom.value[targetPosition[0]][targetPosition[1]]
     if (targetPositionValue === W) {
       // Wall
-      playerStates.push({...playerLastState.value, collision: movementDirection})
+      playerStates.push({...playerLastState.value, collision: movementDirection, beep: false})
     } else {
       // Move the player
-      const newState = {...playerLastState.value, position: targetPosition, collision: null}
+      const newState = {...playerLastState.value, position: targetPosition, collision: null, beep: false}
       // Reached the treasure?
       if (targetPositionValue === T) {
         winningIndex.value = playerStates.length
@@ -216,26 +243,34 @@ const turn = function(direction) { // left or right
         break
     }
   }
-  playerStates.push({...playerLastState.value, facing: newDirection, collision: null})
+  playerStates.push({...playerLastState.value, facing: newDirection, collision: null, beep: false})
   updateGlobals()
 }
 
 const changeColor = function(color) {
-  playerStates.push({...playerLastState.value, colour: color})
+  playerStates.push({...playerLastState.value, colour: color, beep: false})
 }
 
 defineExpose({
   move,
   turn,
-  changeColor
+  changeColor,
+  beep
 })
 
-setInterval(() => {
+const start = function () {
+  started.value = true
+  playerStateIndex.value = 0
+  setInterval(() => {
   if (playerStateIndex.value < playerStates.length - 1 &&
     (winningIndex.value == null || playerStateIndex.value < winningIndex.value)) {
     playerStateIndex.value++
+    if (playerCurrentState.value.beep) {
+      doBeep()
+    }
   }
 }, 1000)
+}
 </script>
 
 <template>
@@ -276,6 +311,9 @@ setInterval(() => {
       </div>
     </div>
   </Transition>
+  <div class="start-btn-container" v-if="!started">
+    <button @click="start">Start</button>
+  </div>
 </div>
 </template>
 
@@ -389,5 +427,22 @@ body {
 .success-inner > p {
   font-family: sans-serif;
   font-size: larger;
+}
+
+.start-btn-container {
+  position: fixed;
+  text-align: center;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.start-btn-container>button {
+  background: rgba(255,253,208,0.9);
+  box-shadow: inset;
+  font-size: 30px;
+  box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
 }
 </style>
