@@ -1,6 +1,5 @@
 <script setup>
-import { computed } from '@vue/reactivity';
-import {ref, reactive, watch} from 'vue'
+import {ref, reactive, watch, computed} from 'vue'
 import Wall from './Wall.vue'
 import Treasure from './Treasure.vue'
 const S = 'S' // Start
@@ -15,8 +14,14 @@ const rooms = reactive([
     [_,W,_,_,_],
     [_,_,_,W,T],
     [_,_,_,_,_]
-  ]
+  ],
   // Room 2
+  [
+    [S,_,_,_,_],
+    [_,_,_,_,_],
+    [_,_,_,_,_],
+    [_,_,_,_,_]
+  ]
 ])
 const selectedRoom = ref(rooms[0])
 function getPositionOf(thing) {
@@ -226,7 +231,8 @@ defineExpose({
 })
 
 setInterval(() => {
-  if (playerStateIndex.value < playerStates.length - 1 && playerStateIndex.value < winningIndex.value) {
+  if (playerStateIndex.value < playerStates.length - 1 &&
+    (winningIndex.value == null || playerStateIndex.value < winningIndex.value)) {
     playerStateIndex.value++
   }
 }, 1000)
@@ -238,16 +244,28 @@ setInterval(() => {
     'grid-template-columns': 'repeat( ' + selectedRoom[0].length + ', 1fr)',
     'grid-template-rows': 'repeat(' + selectedRoom.length + ', 1fr)'
     }">
-    <div class="room-element" v-for="(element, i) in flattenedRoomElements" :key="i">
-      <svg v-if="element === 'P'" class="player" viewBox="0 0 500 500"
-        :style="{'transform': 'rotate(' + rotatePlayer + 'deg)'}">
-        <polygon points="0,250 500,40 500,460" :style="{fill:playerColour}" />
-      </svg>
+    <div class="room-element"
+      v-for="(element, i) in flattenedRoomElements"
+      :key="i"
+      :style="{
+      'grid-row': Math.floor(i / selectedRoom[0].length) + 1,
+      'grid-column': i % selectedRoom[0].length + 1
+    }">
       <Transition>
         <div v-if="element === 'P' && playerCurrentState.collision" class="collision" :class="playerCurrentState.collision" />
       </Transition>
       <Wall v-if="element === 'W'" class="wall"/>
       <Treasure v-if="element === 'T'" class="treasure"/>
+    </div>
+    <!--Player moves from cell to cell-->
+    <div class="player-box" :style="{
+        'grid-row': playerCurrentState.position[0] + 1,
+        'grid-column': playerCurrentState.position[1] + 1
+        }">
+      <svg class="player" viewBox="0 0 500 500"
+        :style="{'transform': 'rotate(' + rotatePlayer + 'deg)'}">
+        <polygon points="0,250 500,40 500,460" :style="{fill:playerColour}" />
+      </svg>
     </div>
   </div>
   <Transition>
@@ -264,6 +282,7 @@ setInterval(() => {
 <style>
 body {
   margin: 0;
+  overflow: hidden;
 }
 .container {
   width: 100vw;
@@ -278,17 +297,26 @@ body {
   margin: 1px;
   border: 1px solid black;
   display: grid;
+  overflow: hidden;
 }
 
-/*Player*/
-.player {
-  width: 80%;
-  height: 80%;
-  margin: 10%;
-  transform: rotate(0deg);
-  transition: transform 1s;
+.player-box {
+  align-self: center;
   grid-column: 1;
   grid-row: 1;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.player {
+  max-width: 80%;
+  max-height: 80%;
+  padding: 10%;
+  transform: rotate(0deg);
+  transition: transform 1s;
 }
 
 .player > polygon {
@@ -325,9 +353,11 @@ body {
 }
 
 .wall, .treasure {
-  width: 90%;
-  height: 90%;
+  max-width: 90%;
+  max-height: 90%;
   margin: 5%;
+  align-self: center;
+  justify-self: center;
 }
 
 .v-enter-active,
