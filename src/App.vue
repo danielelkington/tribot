@@ -145,9 +145,14 @@ const turn = function(direction) { // left or right
   playerStates.push({...playerLastState.value, facing: newDirection, collision: null})
 }
 
+const changeColor = function(color) {
+  playerStates.push({...playerLastState.value, colour: color})
+}
+
 defineExpose({
   move,
-  turn
+  turn,
+  changeColor
 })
 
 setInterval(() => {

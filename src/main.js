@@ -25,11 +25,14 @@ function turnRight() {
   component.turn('right')
 }
 
-function changeColour(colour) {
-  component.changeColour(colour)
+function changeColor(color) {
+  component.changeColor(color)
 }
 
-// turnRight()
+changeColor('green')
+turnRight()
+changeColor('blue')
+changeColor('yellow')
 // moveForward()
 // moveForward()
 // turnLeft()
