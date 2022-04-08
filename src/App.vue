@@ -1,5 +1,6 @@
 <script setup>
 import {ref, reactive, watch, computed} from 'vue'
+import useCss from 'vue-use-css'
 import Wall from './Wall.vue'
 import Treasure from './Treasure.vue'
 const S = 'S' // Start
@@ -79,8 +80,11 @@ watch(() => playerFacing.value, (playerFacing) => {
 })
 
 // From https://stackoverflow.com/a/29641185/5740181
-const audioCtx = new (window.AudioContext || window.webkitAudioContext || window.audioContext)
+let audioCtx
 function doBeep() {
+  if (audioCtx == null) {
+     audioCtx = new (window.AudioContext || window.webkitAudioContext || window.audioContext)
+  }
   const duration = 300,
   frequency = 160,
   volume = 0.7,
@@ -101,7 +105,7 @@ function doBeep() {
 }
 
 function beep() {
-  playerStates.push({...playerLastState.value, beep: true})
+  playerStates.push({...playerLastState.value, collision: null, beep: true})
 }
 
 function updateGlobals() {
@@ -262,62 +266,19 @@ const start = function () {
   started.value = true
   playerStateIndex.value = 0
   setInterval(() => {
-  if (playerStateIndex.value < playerStates.length - 1 &&
-    (winningIndex.value == null || playerStateIndex.value < winningIndex.value)) {
-    playerStateIndex.value++
-    if (playerCurrentState.value.beep) {
-      doBeep()
+    if (playerStateIndex.value < playerStates.length - 1 &&
+      (winningIndex.value == null || playerStateIndex.value < winningIndex.value)) {
+      playerStateIndex.value++
+      if (playerCurrentState.value.beep) {
+        doBeep()
+      }
     }
-  }
-}, 1000)
+  }, 1000)
 }
-</script>
 
-<template>
-<div class="container">
-  <div class="room" :style="{
-    'grid-template-columns': 'repeat( ' + selectedRoom[0].length + ', 1fr)',
-    'grid-template-rows': 'repeat(' + selectedRoom.length + ', 1fr)'
-    }">
-    <div class="room-element"
-      v-for="(element, i) in flattenedRoomElements"
-      :key="i"
-      :style="{
-      'grid-row': Math.floor(i / selectedRoom[0].length) + 1,
-      'grid-column': i % selectedRoom[0].length + 1
-    }">
-      <Transition>
-        <div v-if="element === 'P' && playerCurrentState.collision" class="collision" :class="playerCurrentState.collision" />
-      </Transition>
-      <Wall v-if="element === 'W'" class="wall"/>
-      <Treasure v-if="element === 'T'" class="treasure"/>
-    </div>
-    <!--Player moves from cell to cell-->
-    <div class="player-box" :style="{
-        'grid-row': playerCurrentState.position[0] + 1,
-        'grid-column': playerCurrentState.position[1] + 1
-        }">
-      <svg class="player" viewBox="0 0 500 500"
-        :style="{'transform': 'rotate(' + rotatePlayer + 'deg)'}">
-        <polygon points="0,250 500,40 500,460" :style="{fill:playerColour}" />
-      </svg>
-    </div>
-  </div>
-  <Transition>
-    <div v-if="winningIndex != null && playerStateIndex >= winningIndex" class="success">
-      <div class="success-inner">
-        <Treasure/>
-        <p>You got the treasure!</p>
-      </div>
-    </div>
-  </Transition>
-  <div class="start-btn-container" v-if="!started">
-    <button @click="start">Start</button>
-  </div>
-</div>
-</template>
-
-<style>
+// Inject CSS so that users of this library don't need
+// an extra import
+const css = `
 body {
   margin: 0;
   overflow: hidden;
@@ -445,4 +406,50 @@ body {
   font-size: 30px;
   box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
 }
-</style>
+`
+const cssScope = useCss(css)
+</script>
+
+<template>
+<div class="container" v-bind="cssScope">
+  <div class="room" :style="{
+    'grid-template-columns': 'repeat( ' + selectedRoom[0].length + ', 1fr)',
+    'grid-template-rows': 'repeat(' + selectedRoom.length + ', 1fr)'
+    }">
+    <div class="room-element"
+      v-for="(element, i) in flattenedRoomElements"
+      :key="i"
+      :style="{
+      'grid-row': Math.floor(i / selectedRoom[0].length) + 1,
+      'grid-column': i % selectedRoom[0].length + 1
+    }">
+      <Transition>
+        <div v-if="element === 'P' && playerCurrentState.collision" class="collision" :class="playerCurrentState.collision" />
+      </Transition>
+      <Wall v-if="element === 'W'" class="wall"/>
+      <Treasure v-if="element === 'T'" class="treasure"/>
+    </div>
+    <!--Player moves from cell to cell-->
+    <div class="player-box" :style="{
+        'grid-row': playerCurrentState.position[0] + 1,
+        'grid-column': playerCurrentState.position[1] + 1
+        }">
+      <svg class="player" viewBox="0 0 500 500"
+        :style="{'transform': 'rotate(' + rotatePlayer + 'deg)'}">
+        <polygon points="0,250 500,40 500,460" :style="{fill:playerColour}" />
+      </svg>
+    </div>
+  </div>
+  <Transition>
+    <div v-if="winningIndex != null && playerStateIndex >= winningIndex" class="success">
+      <div class="success-inner">
+        <Treasure/>
+        <p>You got the treasure!</p>
+      </div>
+    </div>
+  </Transition>
+  <div class="start-btn-container" v-if="!started">
+    <button @click="start">Start</button>
+  </div>
+</div>
+</template>
