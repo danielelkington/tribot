@@ -10,37 +10,38 @@ const app = createApp(App)
 const component = app.mount('#app')
 
 // Global variables
-let gameInProgress = true
-let obstacleAhead = false
-let obstacleBehind = false
+window.gameInProgress = true
+window.obstacleAhead = false
+window.obstacleBehind = false
 
 // Global functions
-function moveForward() {
+window.moveForward = function() {
   component.move('forward')
 }
 
-function moveBackward() {
+window.moveBackward = function() {
   component.move('backward')
 }
 
-function turnLeft() {
+window.turnLeft = function() {
   component.turn('left')
 }
 
-function turnRight() {
+window.turnRight = function() {
   component.turn('right')
 }
 
-function changeColor(color) {
+window.changeColor = function(color) {
   component.changeColor(color)
 }
 
-function beep() {
+window.beep = function() {
   component.beep()
 }
 
-
 // TODO:
-// - Bundle
+// - Set gameInProgress to false if we're still going after 1000 state changes
+// - Allow current room to be changed
+// - Add 3 good sample rooms
+// - Allow extra rooms to be added
 // - Push to npm
-// - Test
