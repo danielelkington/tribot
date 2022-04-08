@@ -242,6 +242,9 @@ setInterval(() => {
         :style="{'transform': 'rotate(' + rotatePlayer + 'deg)'}">
         <polygon points="0,250 500,40 500,460" :style="{fill:playerColour}" />
       </svg>
+      <Transition>
+        <div v-if="element === 'P' && playerCurrentState.collision" class="collision" :class="playerCurrentState.collision" />
+      </Transition>
       <Wall v-if="element === 'W'" class="wall"/>
       <Treasure v-if="element === 'T'" class="treasure"/>
     </div>
@@ -266,6 +269,7 @@ body {
 .room-element {
   margin: 1px;
   border: 1px solid black;
+  display: grid;
 }
 
 /*Player*/
@@ -275,6 +279,8 @@ body {
   margin: 10%;
   transform: rotate(0deg);
   transition: transform 1s;
+  grid-column: 1;
+  grid-row: 1;
 }
 
 .player > polygon {
@@ -282,9 +288,47 @@ body {
   stroke-width:2;
 }
 
+.collision {
+  background: #a8181e;
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.collision.right {
+  width: 5px;
+  justify-self: end;
+}
+
+.collision.left {
+  width: 5px;
+  justify-self: start;
+}
+
+.collision.up {
+  width: 100%;
+  height: 5px;
+  align-self: start;
+}
+
+.collision.down {
+  width: 100%;
+  height: 5px;
+  align-self: end;
+}
+
 .wall, .treasure {
   width: 90%;
   height: 90%;
   margin: 5%;
+}
+
+.v-enter-active,
+.v-leave-active {
+  transition: opacity 0.5s ease;
+}
+
+.v-enter-from,
+.v-leave-to {
+  opacity: 0;
 }
 </style>
