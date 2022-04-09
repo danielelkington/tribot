@@ -39,8 +39,11 @@ window.beep = function() {
   component.beep()
 }
 
+window.setRoom = function(roomNumber) {
+  component.setRoom(roomNumber)
+}
+
 // TODO:
-// - Allow current room to be changed
 // - Add 3 good sample rooms
 // - Allow extra rooms to be added
 // - Push to npm

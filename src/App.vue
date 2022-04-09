@@ -265,11 +265,22 @@ const changeColor = function(color) {
   stopIfTooManyStates()
 }
 
+const setRoom = function(roomNumber) {
+  if (roomNumber == null) {
+    console.error('Call setRoom(roomNumber) with a number, eg setRoom(2)')
+  }
+  if (roomNumber > rooms.length) {
+    console.error('Room number must be less than ' + rooms.length)
+  }
+  selectedRoom.value = rooms[roomNumber - 1]
+}
+
 defineExpose({
   move,
   turn,
   changeColor,
-  beep
+  beep,
+  setRoom
 })
 
 const start = function () {
