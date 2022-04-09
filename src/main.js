@@ -13,6 +13,11 @@ const component = app.mount('#app')
 window.gameInProgress = true
 window.obstacleAhead = false
 window.obstacleBehind = false
+window.S = 'S' // Start
+window.W = 'W' // Wall
+window.T = 'T' // Treasure
+window._ = '_' // Nothing
+window.P = 'P' // Player
 
 // Global functions
 window.moveForward = function() {
@@ -39,8 +44,8 @@ window.beep = function() {
   component.beep()
 }
 
-window.setRoom = function(roomNumber) {
-  component.setRoom(roomNumber)
+window.setRoom = function(roomNumberOrRoomPattern) {
+  component.setRoom(roomNumberOrRoomPattern)
 }
 
 // TODO:

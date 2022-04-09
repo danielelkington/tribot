@@ -271,14 +271,18 @@ const changeColor = function(color) {
   stopIfTooManyStates()
 }
 
-const setRoom = function(roomNumber) {
-  if (roomNumber == null) {
-    console.error('Call setRoom(roomNumber) with a number, eg setRoom(2)')
+const setRoom = function(roomNumberOrPattern) {
+  if (roomNumberOrPattern == null) {
+    console.error('Call setRoom(roomNumber) with a number eg setRoom(2) or with a pattern eg setRoom([[S,_,_,T,W]])')
   }
-  if (roomNumber > rooms.length) {
+  if (roomNumberOrPattern.constructor === Array) {
+    // TODO validate
+    selectedRoom.value = roomNumberOrPattern
+  } else if (roomNumberOrPattern > rooms.length) {
     console.error('Room number must be less than ' + rooms.length)
+  } else {
+    selectedRoom.value = rooms[roomNumberOrPattern - 1]
   }
-  selectedRoom.value = rooms[roomNumber - 1]
   playerStates[0] = {position: getPositionOf(S), facing: 'right', colour: 'red', collision: null, beep: false}
 }
 
