@@ -106,6 +106,13 @@ function doBeep() {
 
 function beep() {
   playerStates.push({...playerLastState.value, collision: null, beep: true})
+  stopIfTooManyStates()
+}
+
+function stopIfTooManyStates() {
+  if (playerStates.length >= 1000) {
+    window.gameInProgress = false
+  }
 }
 
 function updateGlobals() {
@@ -212,6 +219,7 @@ const move = function(direction) { // forward or backward
     }
   }
   updateGlobals()
+  stopIfTooManyStates()
 }
 
 const turn = function(direction) { // left or right
@@ -249,10 +257,12 @@ const turn = function(direction) { // left or right
   }
   playerStates.push({...playerLastState.value, facing: newDirection, collision: null, beep: false})
   updateGlobals()
+  stopIfTooManyStates()
 }
 
 const changeColor = function(color) {
   playerStates.push({...playerLastState.value, colour: color, beep: false})
+  stopIfTooManyStates()
 }
 
 defineExpose({

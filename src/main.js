@@ -40,7 +40,6 @@ window.beep = function() {
 }
 
 // TODO:
-// - Set gameInProgress to false if we're still going after 1000 state changes
 // - Allow current room to be changed
 // - Add 3 good sample rooms
 // - Allow extra rooms to be added
