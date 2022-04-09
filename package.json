@@ -1,11 +1,18 @@
 {
   "name": "tribot",
-  "private": true,
-  "version": "0.0.0",
+  "version": "0.0.1",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview"
+    "build": "vite build"
+  },
+  "files": ["dist"],
+  "main": "./dist/tribot.umd.js",
+  "module": "./dist/tribot.es.js",
+  "exports": {
+    ".": {
+      "import": "./dist/tribot.es.js",
+      "require": "./dist/tribot.umd.js"
+    }
   },
   "dependencies": {
     "vue": "^3.2.25",
