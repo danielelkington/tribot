@@ -44,6 +44,7 @@ window.setRoom = function(roomNumber) {
 }
 
 // TODO:
-// - Add 3 good sample rooms
 // - Allow extra rooms to be added
 // - Push to npm
+// - README, License
+// -GitHub

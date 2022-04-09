@@ -11,17 +11,23 @@ const P = 'P' // Player
 const rooms = reactive([
   // Room 1
   [
+    [S,_,_,_,_],
+    [_,_,_,T,_],
+  ],
+  // Room 2
+  [
     [S,W,_,_,_],
     [_,W,_,_,_],
     [_,_,_,W,T],
     [_,_,_,_,_]
   ],
-  // Room 2
+  // Room 3
   [
-    [S,_,_,_,_],
-    [_,_,_,_,_],
-    [_,_,_,_,_],
-    [_,_,_,_,_]
+    [W,_,_,_,_,_],
+    [_,_,W,W,_,W],
+    [T,W,W,W,_,_],
+    [W,W,W,_,_,W],
+    [_,S,_,_,_,_]
   ]
 ])
 const selectedRoom = ref(rooms[0])
@@ -33,8 +39,8 @@ function getPositionOf(thing) {
         return [i, j]
       }
     }
-    return -1
   }
+  return -1
 }
 // State = playerPosition + playerFacing + playerColour.
 const playerStates = reactive([{position: getPositionOf(S), facing: 'right', colour: 'red', collision: null, beep: false}])
@@ -273,6 +279,7 @@ const setRoom = function(roomNumber) {
     console.error('Room number must be less than ' + rooms.length)
   }
   selectedRoom.value = rooms[roomNumber - 1]
+  playerStates[0] = {position: getPositionOf(S), facing: 'right', colour: 'red', collision: null, beep: false}
 }
 
 defineExpose({
