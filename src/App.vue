@@ -276,7 +276,38 @@ const setRoom = function(roomNumberOrPattern) {
     console.error('Call setRoom(roomNumber) with a number eg setRoom(2) or with a pattern eg setRoom([[S,_,_,T,W]])')
   }
   if (roomNumberOrPattern.constructor === Array) {
-    // TODO validate
+    // Must be an array of arrays, each with the same length
+    if (roomNumberOrPattern.length === 0 || roomNumberOrPattern[0].constructor !== Array) {
+      console.error('Room pattern has an invalid format.')
+      return
+    }
+    // Validate all cells
+    const columnCount = roomNumberOrPattern[0].length
+    let seenStart = false
+    for (let i = 0; i < roomNumberOrPattern.length; i++) {
+      if (roomNumberOrPattern[i].length !== columnCount) {
+        console.error('All rows in the room should have the same number of columns')
+        return
+      }
+      for (let j = 0; j < roomNumberOrPattern[0].length; j++) {
+        const cell = roomNumberOrPattern[i][j]
+        if (cell !== S && cell !== _ && cell !== W && cell !== T) {
+          console.error('All cells in the room pattern should either be "S" (start), "_" (empty), "W" (wall) or "T" (treasure)')
+          return
+        }
+        if (cell === S && seenStart) {
+          console.error('Cannot have two Start positions.')
+          return
+        }
+        if (cell === S) {
+          seenStart = true
+        }
+      }
+    }
+    if (!seenStart) {
+      console.error('Must specify a Start position with "S"')
+      return
+    }
     selectedRoom.value = roomNumberOrPattern
   } else if (roomNumberOrPattern > rooms.length) {
     console.error('Room number must be less than ' + rooms.length)

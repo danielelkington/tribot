@@ -17,7 +17,6 @@ window.S = 'S' // Start
 window.W = 'W' // Wall
 window.T = 'T' // Treasure
 window._ = '_' // Nothing
-window.P = 'P' // Player
 
 // Global functions
 window.moveForward = function() {
@@ -49,7 +48,6 @@ window.setRoom = function(roomNumberOrRoomPattern) {
 }
 
 // TODO:
-// - Allow extra rooms to be added
 // - Push to npm
 // - README, License
 // -GitHub
