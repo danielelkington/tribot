@@ -46,8 +46,3 @@ window.beep = function() {
 window.setRoom = function(roomNumberOrRoomPattern) {
   component.setRoom(roomNumberOrRoomPattern)
 }
-
-// TODO:
-// - Push to npm
-// - README, License
-// -GitHub
